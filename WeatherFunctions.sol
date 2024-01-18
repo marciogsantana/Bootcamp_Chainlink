@@ -94,14 +94,19 @@ contract WeatherFunctions is FunctionsClient {
         lastCity = _city;
         request_city[lastRequestId] = _city;
 
-        CityStruct memory auxCityStruct = CityStruct({
-            sender: msg.sender,
-            exists: true,
-            name: _city,
-            temperature: ""            
-        });
-        cities.push(auxCityStruct);
-        cityIndex[_city] = cities.length-1;
+        if (!cities[cityIndex[_city]].exists){
+            CityStruct memory auxCityStruct = CityStruct({
+                sender: msg.sender,
+                exists: true,
+                name: _city,
+                temperature: ""            
+            });
+            cities.push(auxCityStruct);
+            cityIndex[_city] = cities.length-1;           
+        }
+        else {
+            cities[cityIndex[_city]].sender = msg.sender;
+        }
 
         requests[lastRequestId] = RequestStatus({
             exists: true,
@@ -145,12 +150,12 @@ contract WeatherFunctions is FunctionsClient {
         emit Response(requestId, lastTemperature, lastResponse, lastError);
     }
 
-    function listCities() public view returns (CityStruct[] memory) {
-        return cities;
-    }
+	function listCities() public view returns (CityStruct[] memory) {
+    	return cities;
+	}
 
-    function getCity(string memory city) public view returns (CityStruct memory) {
-        return cities[cityIndex[city]];
-    }
+	function getCity(string memory city) public view returns (CityStruct memory) {
+    	return cities[cityIndex[city]];
+	}
 
 }
