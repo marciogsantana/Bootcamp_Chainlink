@@ -2,6 +2,7 @@
 pragma solidity 0.8.19;
 
 // Deploy this contract on Fuji
+// parametro endereço contrato CrossDestinationMinter.sol da Sepolia
 
 import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
 import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
