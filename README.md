@@ -6,11 +6,11 @@
 
 1. CCIP:(Cross-Chain Interoperability Protocol)  Padrão Interoperável de Criptomoedas que facilita a comunicação entre blockchains, permitindo transações e fluxos de dados sem atrito.
 
-2. Funções: Crie contratos inteligentes poderosos com funções pré-construídas e personalizáveis, automatizando tarefas complexas e agilizando seus processos.
+2. Functions: Ferramenta para desenvolver contratos inteligentes poderosos com funções pré-construídas e personalizáveis, automatizando tarefas complexas e agilizando seus processos.
 
-3. Data Feeds: Acesse dados confiáveis e seguros do mundo real, como preços de ativos, resultados esportivos e condições climáticas, diretamente em sua blockchain.
+3. Data Feeds: Ferramenta para acessar dados confiáveis e seguros do mundo real, como preços de ativos, resultados esportivos e condições climáticas, diretamente em sua blockchain.
 
-4. Automação: Simplifique e automatize workflows complexos com a Chainlink, conectando seus contratos inteligentes a APIs, sistemas legados e outras fontes de dados.
+4. Automaton: Para simplificar  e automatizar workflows complexos com a Chainlink, conectando seus contratos inteligentes a APIs, sistemas legados e outras fontes de dados.
 
 5. VRF: O Verificação Aleatória Verificável (VRF) garante resultados justos e imparciais em jogos, loterias e outros aplicativos que exigem aleatoriedade comprovada.
 
