@@ -1,0 +1,675 @@
+https://andersbrownworth.com/blockchain/hash
+
+https://andersbrownworth.com/blockchain/block
+
+https://andersbrownworth.com/blockchain/blockchain
+
+https://metamask.io/
+
+https://faucets.chain.link/
+
+https://sepolia-faucet.pk910.de/
+
+https://sepolia.etherscan.io/
+
+https://docs.chain.link/
+
+https://docs.chain.link/resources/link-token-contracts/
+
+https://eth-converter.com/
+
+https://dev.chain.link/
+
+Tarefas - formulario
+https://forms.gle/k36cuefTTwchdPHw7
+
+Slides
+https://docs.google.com/presentation/d/e/2PACX-1vQDouGb19sN3qGO2zDU5VZ-JXhgnJoqVCvykLT6tbOOqX7zXqwqrJxPciBohc66nsoGs_L_UB9QZUQs/pub?start=false&loop=false&delayms=3000
+
+https://docs.google.com/presentation/d/e/2PACX-1vQDouGb19sN3qGO2zDU5VZ-JXhgnJoqVCvykLT6tbOOqX7zXqwqrJxPciBohc66nsoGs_L_UB9QZUQs/pub?start=false&loop=false&delayms=3000
+
+https://docs.google.com/presentation/d/e/2PACX-1vQDouGb19sN3qGO2zDU5VZ-JXhgnJoqVCvykLT6tbOOqX7zXqwqrJxPciBohc66nsoGs_L_UB9QZUQs/pub?start=false&loop=false&delayms=3000
+
+https://docs.google.com/presentation/d/e/2PACX-1vQDouGb19sN3qGO2zDU5VZ-JXhgnJoqVCvykLT6tbOOqX7zXqwqrJxPciBohc66nsoGs_L_UB9QZUQs/pub?start=false&loop=false&delayms=3000
+
+
+0x8a930245Afb0CE344BED65acfCeea19c5A3E0929
+
+https://data.chain.link/  datafeeds  dados instantaneio datastreem
+
+Token ERC20
+https://ethereum.org/en/developers/docs/standards/tokens/
+
+https://eips.ethereum.org/EIPS/eip-20
+
+
+************************************************** data =feed chainlink
+
+contrato token:
+
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.21;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract Token is ERC20, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
+    constructor() ERC20("Santana", "SANT") {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, msg.sender);
+    }
+
+    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+        _mint(to, amount);
+    }
+
+    function decimals() public pure override returns (uint8) {
+        return 2;
+    }    
+}
+
+Contrato TokenShop:
+
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.21;
+
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+interface TokenInterface {
+    function mint(address account, uint256 amount) external;
+}
+
+contract TokenShop {
+    
+    AggregatorV3Interface internal priceFeed;
+    TokenInterface public minter;
+    uint256 public tokenPrice = 200; //1 token = 2.00 usd, with 2 decimal places
+    address public owner;
+    
+    constructor(address tokenAddress) {
+        minter = TokenInterface(tokenAddress);
+        /**
+        * Network: Sepolia
+        * Aggregator: ETH/USD
+        * Address: 0x694AA1769357215DE4FAC081bf1f309aDC325306
+        */
+        priceFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
+        owner = msg.sender;
+    }
+
+    /**
+    * Returns the latest answer
+    */
+    function getChainlinkDataFeedLatestAnswer() public view returns (int) {
+        (
+            /*uint80 roundID*/,
+            int price,
+            /*uint startedAt*/,
+            /*uint timeStamp*/,
+            /*uint80 answeredInRound*/
+        ) = priceFeed.latestRoundData();
+        return price;
+    }
+
+    function tokenAmount(uint256 amountETH) public view returns (uint256) {
+        //Sent amountETH, how many usd I have
+        uint256 ethUsd = uint256(getChainlinkDataFeedLatestAnswer());       //with 8 decimal places
+        uint256 amountUSD = amountETH * ethUsd / 10**18; //ETH = 18 decimal places
+        uint256 amountToken = amountUSD / tokenPrice / 10**(8/2);  //8 decimal places from ETHUSD / 2 decimal places from token 
+        return amountToken;
+    } 
+
+    receive() external payable {
+        uint256 amountToken = tokenAmount(msg.value);
+        minter.mint(msg.sender, amountToken);
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function withdraw() external onlyOwner {
+        payable(owner).transfer(address(this).balance);
+    }    
+}
+
+
+https://dev.chain.link/products/ccip
+
+Blockchain Origem
+Avalanche Fuji
+
+Blockchain Destino
+Ethereum Sepolia
+
+Add Fuji to Metamask
+https://chainlist.org/chain/43113
+
+Faucet
+Avax Fuji e LINK na Fuji
+
+https://faucets.chain.link/
+
+Add LINK on Fuji nn Metamask
+https://docs.chain.link/resources/link-token-contracts#fuji-testnet
+
+CCIP-BnM
+https://docs.chain.link/ccip/test-tokens#mint-tokens-in-the-documentation
+Add CCIP-BnM to wallet
+Mint 1 CCIP-BnM Token
+
+https://docs.chain.link/ccip/tutorials/cross-chain-tokens
+
+https://docs.chain.link/resources/link-token-contracts#fuji-testnet
+
+https://docs.chain.link/ccip/supported-networks/v1_2_0/testnet#avalanche-fuji
+
+
+Contrato fuji:
+
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.19;
+
+import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
+import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
+import {IERC20} from "@chainlink/contracts-ccip/src/v0.8/vendor/openzeppelin-solidity/v4.8.0/token/ERC20/IERC20.sol";
+import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
+
+contract CCIPTokenSenderFujiSepolia {
+    IRouterClient router;
+    LinkTokenInterface linkToken;
+    address public owner;
+
+    // https://docs.chain.link/resources/link-token-contracts#fuji-testnet
+    address link= 0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846;
+
+    // https://docs.chain.link/ccip/supported-networks/v1_2_0/testnet#avalanche-fuji
+    address routerAddress = 0xF694E193200268f9a4868e4Aa017A0118C9a8177;
+    address bnmToken = 0xD21341536c5cF5EB1bcb58f6723cE26e8D8E90e4;
+    
+    // https://docs.chain.link/ccip/supported-networks/v1_2_0/testnet#ethereum-sepolia
+    uint64 destinationChainSelector = 16015286601757825753;
+   
+    error NotEnoughBalance(uint256 currentBalance, uint256 calculatedFees);
+    error NothingToWithdraw();
+   
+    event TokensTransferred(
+        bytes32 indexed messageId, // The unique ID of the message.
+        uint64 indexed destinationChainSelector, // The chain selector of the destination chain.
+        address receiver, // The address of the receiver on the destination chain.
+        address token, // The token address that was transferred.
+        uint256 tokenAmount, // The token amount that was transferred.
+        address feeToken, // the token address used to pay CCIP fees.
+        uint256 fees // The fees paid for sending the message.
+    );
+
+    constructor() {
+        owner = msg.sender;
+        router = IRouterClient(routerAddress);
+        linkToken = LinkTokenInterface(link);
+        linkToken.approve(routerAddress, type(uint256).max);
+    }
+   
+    function transferToSepolia(
+        address _receiver,
+        uint256 _amount
+    )
+        external
+        returns (bytes32 messageId)
+    {
+        Client.EVMTokenAmount[]
+            memory tokenAmounts = new Client.EVMTokenAmount[](1);
+        Client.EVMTokenAmount memory tokenAmount = Client.EVMTokenAmount({
+            token: bnmToken,
+            amount: _amount
+        });
+        tokenAmounts[0] = tokenAmount;
+       
+        // Build the CCIP Message
+        Client.EVM2AnyMessage memory message = Client.EVM2AnyMessage({
+            receiver: abi.encode(_receiver),
+            data: "",
+            tokenAmounts: tokenAmounts,
+            extraArgs: Client._argsToBytes(
+                Client.EVMExtraArgsV1({gasLimit: 0})
+            ),
+            feeToken: address(linkToken)
+        });
+       
+        // CCIP Fees Management
+        uint256 fees = router.getFee(destinationChainSelector, message);
+
+        if (fees > linkToken.balanceOf(address(this)))
+            revert NotEnoughBalance(linkToken.balanceOf(address(this)), fees);
+
+        linkToken.approve(address(router), fees);
+       
+        // Approve Router to spend CCIP-BnM tokens we send
+        IERC20(bnmToken).approve(address(router), _amount);
+       
+        // Send CCIP Message
+        messageId = router.ccipSend(destinationChainSelector, message);
+       
+        emit TokensTransferred(
+            messageId,
+            destinationChainSelector,
+            _receiver,
+            bnmToken,
+            _amount,
+            link,
+            fees
+        );  
+    }
+    
+    function balancesOf(address account) public view returns (uint256 linkBalance, uint256 bnmTokenBalance) {
+        linkBalance =  linkToken.balanceOf(account);
+        bnmTokenBalance = IERC20(bnmToken).balanceOf(account);
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function withdrawToken(
+        address _beneficiary,
+        address _token
+    ) public onlyOwner {
+        uint256 amount = IERC20(_token).balanceOf(address(this));
+       
+        if (amount == 0) revert NothingToWithdraw();
+       
+        IERC20(_token).transfer(_beneficiary, amount);
+    }
+}
+
+
+endereço contrato: 0xf0c39237b1131000E83Ea68b955198e59573c4eF
+
+Avax Fuji Block explorer
+https://testnet.snowtrace.io/
+
+Fund the CCIPTokenSenderFujiSepolia contract
+No Metamask
+Envie para o endereco do seu CCIPTokenSenderFujiSepolia
+1 LINK
+0.1 CCIP BnM token
+
+Fund the CCIPTokenSenderFujiSepolia contract
+No Metamask
+Envie para o endereco do seu CCIPTokenSenderFujiSepolia
+1 LINK
+0.1 CCIP BnM token
+
+No smart contract
+balancesOf
+Endereco do seu smart contract
+
+Enviar 0.01 BnM da Fuji para Sepolia
+https://eth-converter.com/
+0.01 BnM = 10000000000000000 (wei)
+
+transferToSepolia
+_receiver
+endereco da sua carteira (do Metamask)
+
+_amount
+10000000000000000
+
+https://ccip.chain.link/  // buscar transação chailink
+
+Adicionar CCIP-BnM (Sepolia) no Metamask
+https://docs.chain.link/ccip/test-tokens#mint-tokens-in-the-documentation
+
+*************************************************************************************
+
+block:29235299 txIndex:4]from: 0x6dd...4c101to: CCIPTokenSenderFujiSepolia.transferToSepolia(address,uint256) 0xf0c...3c4efvalue: 0 weidata: 0x9ea...10000logs: 7hash: 0xcf7...3d374
+status	0x1 Transaction mined and execution succeed
+transaction hash	0x78a48356f462c6983f6579cacbb45c8d790d8089fcc6dd177bc09353db2c3550
+block hash	0xcf7e7c8c4e1b3f2eba589d5b10999e599d46dad75462f8a743e3e1c12fe3d374
+block number	29235299
+from	0x6dd3a0eb4803dd4e61142024a56287dfeec4c101
+to	CCIPTokenSenderFujiSepolia.transferToSepolia(address,uint256) 0xf0c39237b1131000e83ea68b955198e59573c4ef
+gas	293942 gas
+transaction cost	293942 gas 
+input	0x9ea...10000
+decoded input	{
+	"address _receiver": "0x6DD3A0eB4803dD4E61142024A56287DFeEc4C101",
+	"uint256 _amount": "10000000000000000"
+}
+decoded output	 - 
+logs	[
+	{
+		"from": "0x0b9d5d9136855f6fec3c0993fee6e9ce8a297846",
+		"topic": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+		"event": "Approval",
+		"args": {
+			"0": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"1": "0xF694E193200268f9a4868e4Aa017A0118C9a8177",
+			"2": "17329562023590000",
+			"owner": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"spender": "0xF694E193200268f9a4868e4Aa017A0118C9a8177",
+			"value": "17329562023590000"
+		}
+	},
+	{
+		"from": "0xd21341536c5cf5eb1bcb58f6723ce26e8d8e90e4",
+		"topic": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+		"event": "Approval",
+		"args": {
+			"0": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"1": "0xF694E193200268f9a4868e4Aa017A0118C9a8177",
+			"2": "10000000000000000",
+			"owner": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"spender": "0xF694E193200268f9a4868e4Aa017A0118C9a8177",
+			"value": "10000000000000000"
+		}
+	},
+	{
+		"from": "0x0b9d5d9136855f6fec3c0993fee6e9ce8a297846",
+		"topic": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+		"event": "Transfer",
+		"args": {
+			"0": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"1": "0x5724B4Cc39a9690135F7273b44Dfd3BA6c0c69aD",
+			"2": "17329562023590000",
+			"from": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"to": "0x5724B4Cc39a9690135F7273b44Dfd3BA6c0c69aD",
+			"value": "17329562023590000"
+		}
+	},
+	{
+		"from": "0xd21341536c5cf5eb1bcb58f6723ce26e8d8e90e4",
+		"topic": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+		"event": "Approval",
+		"args": {
+			"0": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"1": "0xF694E193200268f9a4868e4Aa017A0118C9a8177",
+			"2": "0",
+			"owner": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"spender": "0xF694E193200268f9a4868e4Aa017A0118C9a8177",
+			"value": "0"
+		}
+	},
+	{
+		"from": "0xd21341536c5cf5eb1bcb58f6723ce26e8d8e90e4",
+		"topic": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+		"event": "Transfer",
+		"args": {
+			"0": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"1": "0xEC1062cbDf4fBf31B3A6Aac62B6F6F123bb70E12",
+			"2": "10000000000000000",
+			"from": "0xf0c39237b1131000E83Ea68b955198e59573c4eF",
+			"to": "0xEC1062cbDf4fBf31B3A6Aac62B6F6F123bb70E12",
+			"value": "10000000000000000"
+		}
+	},
+	{
+		"from": "0xd21341536c5cf5eb1bcb58f6723ce26e8d8e90e4",
+		"topic": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+		"event": "Transfer",
+		"args": {
+			"0": "0xEC1062cbDf4fBf31B3A6Aac62B6F6F123bb70E12",
+			"1": "0x0000000000000000000000000000000000000000",
+			"2": "10000000000000000",
+			"from": "0xEC1062cbDf4fBf31B3A6Aac62B6F6F123bb70E12",
+			"to": "0x0000000000000000000000000000000000000000",
+			"value": "10000000000000000"
+		}
+	},
+	{
+		"from": "0xf0c39237b1131000e83ea68b955198e59573c4ef",
+		"topic": "0xc15fb748c32ba4eb29c1c311e78533f93b4425eab49ea87c6fe4279ecadca043",
+		"event": "TokensTransferred",
+		"args": {
+			"0": "0x2a499a75d3c06c3c6fedc1a27bb6f1e589d53f6458221812db307ee0a6a33293",
+			"1": "16015286601757825753",
+			"2": "0x6DD3A0eB4803dD4E61142024A56287DFeEc4C101",
+			"3": "0xD21341536c5cF5EB1bcb58f6723cE26e8D8E90e4",
+			"4": "10000000000000000",
+			"5": "0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846",
+			"6": "17329562023590000",
+			"messageId": "0x2a499a75d3c06c3c6fedc1a27bb6f1e589d53f6458221812db307ee0a6a33293",
+			"destinationChainSelector": "16015286601757825753",
+			"receiver": "0x6DD3A0eB4803dD4E61142024A56287DFeEc4C101",
+			"token": "0xD21341536c5cF5EB1bcb58f6723cE26e8D8E90e4",
+			"tokenAmount": "10000000000000000",
+			"feeToken": "0x0b9d5D9136855f6FEc3c0993feE6E9CE8a297846",
+			"fees": "17329562023590000"
+		}
+	}
+]
+
+
+https://ccip.chain.link/msg/0x2a499a75d3c06c3c6fedc1a27bb6f1e589d53f6458221812db307ee0a6a33293
+
+
+aula 06:
+
+Chainlink Bootcamp por Solange Gueiros Jan/2024
+
+Aula 06
+https://pad.riseup.net/p/cl-pt-06
+
+Slides
+https://docs.google.com/presentation/d/e/2PACX-1vQDouGb19sN3qGO2zDU5VZ-JXhgnJoqVCvykLT6tbOOqX7zXqwqrJxPciBohc66nsoGs_L_UB9QZUQs/pub?start=false&loop=false&delayms=3000
+
+Tarefas
+https://forms.gle/k36cuefTTwchdPHw7
+
+Todas as aulas estao aqui
+https://lu.ma/ig70bk68
+
+Faucet
+Lawyer202
+
+Exercicios do Bootcamp
+https://github.com/solangegueiros/chainlink-bootcamp-2024
+
+https://chain.link/community/advocates
+https://chain.link/developers/experts
+
+Portal do dev
+https://dev.chain.link/
+
+photoAlbumIndex
+Index 1
+Returna 0
+(primeiro Json)
+
+
+rotatePhoto
+Index 1  apenas manual
+
+https://automation.chain.link/
+
+Connect you wallet
+Register new Upkeep
+Custom logic
+
+
+aula 08:
+*******************************************************
+
+
+https://dev.chain.link/products/vrf
+
+https://docs.chain.link/vrf/v2/security
+https://docs.chain.link/vrf/v2/best-practices
+https://docs.chain.link/vrf/v2/subscription/supported-networks#avalanche-fuji-testnet
+
+
+Metamask
+Fuji
+
+
+https://remix.ethereum.org/
+
+Icon 5 - DEPLOY & RUN TRANSACTIONS
+ENVIRONMENT
+Injected provider - Metamask
+Custom (43113) network = Fuji
+
+Criar
+Runners.sol
+
+
+
+id chailink: 0x089105b9029ccafd57eb8395c18917a1d2d601e7
+
+1042 id
+
+0x715c32181b359Ab05555dC99662252E5e57e5dF1 contrato
+
+***************************
+
+Para ver o Json de um jogador (um NFT da colecao)
+
+TokenURI
+TokenID
+1
+
+Resultado - exemplo
+0:string: data:application/json;base64,eyJuYW1lIjogIldpdGNoIiwiZGVzY3JpcHRpb24iOiAiQ2hhaW5saW5rIHJ1bm5lciIsImltYWdlIjogImh0dHBzOi8vaXBmcy5pby9pcGZzL1FtUE13UXRGcEVkS3JVanBRSmZvVGVaUzFhVlNldUpUNk1vZjd1VjI5QWNVcEY/ZmlsZW5hbWU9Q2hhaW5saW5rX1dpdGNoLnBuZyIsImF0dHJpYnV0ZXMiOiBbeyJ0cmFpdF90eXBlIjogImRpc3RhbmNlIiwidmFsdWUiOiA3MH0seyJ0cmFpdF90eXBlIjogInJvdW5kIiwidmFsdWUiOiAyfV19
+
+JSON - encoded Base64
+eyJuYW1lIjogIldpdGNoIiwiZGVzY3JpcHRpb24iOiAiQ2hhaW5saW5rIHJ1bm5lciIsImltYWdlIjogImh0dHBzOi8vaXBmcy5pby9pcGZzL1FtUE13UXRGcEVkS3JVanBRSmZvVGVaUzFhVlNldUpUNk1vZjd1VjI5QWNVcEY/ZmlsZW5hbWU9Q2hhaW5saW5rX1dpdGNoLnBuZyIsImF0dHJpYnV0ZXMiOiBbeyJ0cmFpdF90eXBlIjogImRpc3RhbmNlIiwidmFsdWUiOiA3MH0seyJ0cmFpdF90eXBlIjogInJvdW5kIiwidmFsdWUiOiAyfV19
+
+https://www.base64decode.org/
+
+{"name": "Witch","description": "Chainlink runner","image": "https://ipfs.io/ipfs/QmPMwQtFpEdKrUjpQJfoTeZS1aVSeuJT6Mof7uV29AcUpF?filename=Chainlink_Witch.png","attributes": [{"trait_type": "distance","value": 70},{"trait_type": "round","value": 2}]}
+
+{
+    "name": "Witch",
+    "description": "Chainlink runner",
+    "image": "https://ipfs.io/ipfs/QmPMwQtFpEdKrUjpQJfoTeZS1aVSeuJT6Mof7uV29AcUpF?filename=Chainlink_Witch.png",
+    "attributes": [
+        {"trait_type": "distance","value": 70},
+        {"trait_type": "round","value": 2}
+    ]
+}
+
+
+Decode em linha de comando - Linux ou GitBash
+echo eyJuYW1lIjogIkVsZiIsImRlc2NyaXB0aW9uIjogIkNoYWlubGluayBydW5uZXIiLCJpbWFnZSI6ICJodHRwczovL2lwZnMuaW8vaXBmcy9RbVRncW5oRkJNa2ZUOXM4UEhLY2RYQm4xZjViRzNRNWhtQmFSNFU2aG9UdmIxP2ZpbGVuYW1lPUNoYWlubGlua19FbGYucG5nIiwiYXR0cmlidXRlcyI6IFt7InRyYWl0X3R5cGUiOiAiZGlzdGFuY2UiLCJ2YWx1ZSI6IDEyMH0seyJ0cmFpdF90eXBlIjogInJvdW5kIiwidmFsdWUiOiAyfV19 | base64 -d
+
+
+
+
+Outro personagem
+0:string: data:application/json;base64,eyJuYW1lIjogIkVsZiIsImRlc2NyaXB0aW9uIjogIkNoYWlubGluayBydW5uZXIiLCJpbWFnZSI6ICJodHRwczovL2lwZnMuaW8vaXBmcy9RbVRncW5oRkJNa2ZUOXM4UEhLY2RYQm4xZjViRzNRNWhtQmFSNFU2aG9UdmIxP2ZpbGVuYW1lPUNoYWlubGlua19FbGYucG5nIiwiYXR0cmlidXRlcyI6IFt7InRyYWl0X3R5cGUiOiAiZGlzdGFuY2UiLCJ2YWx1ZSI6IDE0MH0seyJ0cmFpdF90eXBlIjogInJvdW5kIiwidmFsdWUiOiAyfV19
+
+eyJuYW1lIjogIkVsZiIsImRlc2NyaXB0aW9uIjogIkNoYWlubGluayBydW5uZXIiLCJpbWFnZSI6ICJodHRwczovL2lwZnMuaW8vaXBmcy9RbVRncW5oRkJNa2ZUOXM4UEhLY2RYQm4xZjViRzNRNWhtQmFSNFU2aG9UdmIxP2ZpbGVuYW1lPUNoYWlubGlua19FbGYucG5nIiwiYXR0cmlidXRlcyI6IFt7InRyYWl0X3R5cGUiOiAiZGlzdGFuY2UiLCJ2YWx1ZSI6IDE0MH0seyJ0cmFpdF90eXBlIjogInJvdW5kIiwidmFsdWUiOiAyfV19
+
+https://www.base64decode.org/
+
+{"name": "Elf","description": "Chainlink runner","image": "https://ipfs.io/ipfs/QmTgqnhFBMkfT9s8PHKcdXBn1f5bG3Q5hmBaR4U6hoTvb1?filename=Chainlink_Elf.png","attributes": [{"trait_type": "distance","value": 140},{"trait_type": "round","value": 2}]}
+
+{
+    "name": "Elf",
+    "description": "Chainlink runner",
+    "image": "https://ipfs.io/ipfs/QmTgqnhFBMkfT9s8PHKcdXBn1f5bG3Q5hmBaR4U6hoTvb1?filename=Chainlink_Elf.png",
+    "attributes": [
+        {"trait_type": "distance","value": 140},
+        {"trait_type": "round","value": 2}
+    ]
+}
+
+
+Comando do Linux para decode base64:
+    
+$: base64 --decode <<< eyJuYW1lIjogIktuaWdodCIsImRlc2NyaXB0aW9uIjogIkNoYWlubGluayBydW5uZXIiLCJpbWFnZSI6ICJodHRwczovL2lwZnMuaW8vaXBmcy9RbVpHUUE5MnJpMWpmelN1NjFKUmFOUVhZZzFiTHVNN3A4WVQ4M0R6RkEyS0xIP2ZpbGVuYW1lPUNoYWlubGlua19LbmlnaHQucG5nIiwiYXR0cmlidXRlcyI6IFt7InRyYWl0X3R5cGUiOiAiZGlzdGFuY2UiLCJ2YWx1ZSI6IDEyMH0seyJ0cmFpdF90eXBlIjogInJvdW5kIiwidmFsdWUiOiAyfV19
+
+
+**************************************
+
+Chainlink Bootcamp por Solange Gueiros Jan/2024
+
+Aula 09 - Chainlink Functions para acessar dados off-chain
+https://pad.riseup.net/p/cl-pt-09
+
+Slides
+https://docs.google.com/presentation/d/e/2PACX-1vQDouGb19sN3qGO2zDU5VZ-JXhgnJoqVCvykLT6tbOOqX7zXqwqrJxPciBohc66nsoGs_L_UB9QZUQs/pub?start=false&loop=false&delayms=3000
+
+Tarefas
+https://forms.gle/k36cuefTTwchdPHw7
+
+Todas as aulas estao aqui
+https://lu.ma/ig70bk68
+
+Exercicios do Bootcamp
+https://github.com/solangegueiros/chainlink-bootcamp-2024
+
+Faucet
+https://workshop-faucet.vercel.app/faucets
+cllworkshop0101
+
+https://chain.link/community/advocates
+https://chain.link/developers/experts
+
+Link do grupo @Telegram:
+https://t.me/+sw2bRlynKwExNzMx
+
+https://blog.chain.link/ways-to-use-chainlink-functions/
+https://usechainlinkfunctions.com/
+https://usechainlinkfunctions.com/posts/aviation-flight-status
+https://docs.chain.link/chainlink-functions/getting-started
+https://www.run-functions.app/
+https://functions.chain.link/playground
+Para os Devs mais experientes
+https://www.npmjs.com/package/@chainlink/functions-toolkit
+https://functions.chain.link/fuji/
+
+Converter Bytes para String
+https://web3-type-converter.onbrn.com/
+
+
+Chainlink Bootcamp por Solange Gueiros Jan/2024
+
+Aula 10 - Conectando o mundo utilizando a plataforma Chainlink
+https://pad.riseup.net/p/cl-pt-10
+
+Slides
+https://docs.google.com/presentation/d/e/2PACX-1vQDouGb19sN3qGO2zDU5VZ-JXhgnJoqVCvykLT6tbOOqX7zXqwqrJxPciBohc66nsoGs_L_UB9QZUQs/pub?start=false&loop=false&delayms=3000
+
+Tarefas
+https://forms.gle/k36cuefTTwchdPHw7
+Data limite para receber o certificado: 31/Jan/2024
+
+Todas as aulas estao aqui
+https://lu.ma/ig70bk68
+
+Exercicios do Bootcamp
+https://github.com/solangegueiros/chainlink-bootcamp-2024
+
+Faucet
+https://workshop-faucet.vercel.app/faucets
+cllworkshop0101
+
+Suporte Bootcamp
+https://chain.link/discord
+bootcamp channel
+
+Link do grupo @Telegram:
+https://t.me/+sw2bRlynKwExNzMx
+
+Data final para exercícios:
+  ->  Jan 31
+
+https://chain.link/community/advocates
+https://chain.link/developers/experts
+
+https://chainlinklabs.com/careers
+https://cryptojobslist.com/ 
+https://cryptocurrencyjobs.co/ 
+https://crypto.jobs/ https://web3.career/
+
+
+###################################################
+certificado
+https://collectors.poap.xyz/mint/i3xa7l/success
+https://collectors.poap.xyz/scan/0x6DD3A0eB4803dD4E61142024A56287DFeEc4C101
+https://collectors.poap.xyz/token/7012936
