@@ -23,7 +23,7 @@ https://dev.chain.link/
 
 ## Link POAP
 
-https://collectors.poap.xyz/scan/0x6DD3A0eB4803dD4E61142024A56287DFeEc4C101
+https://app.poap.xyz/token/7012936
 
 ![imagem certificado](https://github.com/marciogsantana/imagens/blob/main/certificado_bootcamp.png)  
 
